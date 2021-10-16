@@ -1,28 +1,23 @@
-package com.edu.github_mvp.ui.activity
+package ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.activity
 
 import android.os.Bundle
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
-import com.edu.github_mvp.R
-import com.edu.github_mvp.databinding.ActivityMainBinding
-import com.edu.github_mvp.mvp.presenter.MainPresenter
-import com.edu.github_mvp.mvp.view.MainView
-import com.edu.github_mvp.ui.App
-import com.edu.github_mvp.ui.BackClickListener
-import com.edu.github_mvp.ui.adapter.UsersRVAdapter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.R
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.databinding.ActivityMainBinding
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.MainPresenter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.MainView
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.App
+import com.edu.github_mvp.ui.BackButtonListener
 import com.edu.github_mvp.ui.navigation.AndroidScreens
 
 class MainActivity : MvpAppCompatActivity(), MainView {
 
-    private val navigator = AppNavigator(this, R.id.container)
+    val navigator = AppNavigator(this, R.id.container)
 
+    private val presenter by moxyPresenter { MainPresenter(App.instance.router, AndroidScreens()) }
     private var vb: ActivityMainBinding? = null
-    private val presenter by moxyPresenter {
-        MainPresenter(App.instance.router, AndroidScreens())
-    }
-
-    private var adapter: UsersRVAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,11 +37,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     override fun onBackPressed() {
         supportFragmentManager.fragments.forEach {
-            if(it is BackClickListener && it.backPressed()){
+            if(it is BackButtonListener && it.backPressed()){
                 return
             }
         }
         presenter.backClicked()
     }
-
 }

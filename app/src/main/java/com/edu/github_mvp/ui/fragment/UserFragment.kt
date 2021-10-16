@@ -1,48 +1,49 @@
-package com.edu.github_mvp.ui.fragment
+package ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.edu.github_mvp.databinding.FragmentUserBinding
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
-import com.edu.github_mvp.databinding.FragmentUsersBinding
-import com.edu.github_mvp.mvp.model.GithubUsersRepo
-import com.edu.github_mvp.mvp.model.entity.GithubUser
-import com.edu.github_mvp.mvp.navigation.IScreens
-import com.edu.github_mvp.mvp.presenter.UserPresenter
-import com.edu.github_mvp.mvp.presenter.UsersPresenter
-import com.edu.github_mvp.mvp.view.UsersView
-import com.edu.github_mvp.ui.App
-import com.edu.github_mvp.ui.BackClickListener
-import com.edu.github_mvp.ui.adapter.UsersRVAdapter
-import com.github.terrakok.cicerone.Screen
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.databinding.FragmentUserBinding
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubUser
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.UserPresenter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.UserView
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.App
+import com.edu.github_mvp.ui.BackButtonListener
 
-class UserFragment : MvpAppCompatFragment() {
+class UserFragment : MvpAppCompatFragment(), UserView, BackButtonListener {
 
-//    private val presenter by moxyPresenter {
-//        UserPresenter(App.instance.router, )
-//    }
+    companion object {
+        private const val USER_ARG = "user"
+
+        fun newInstance(user: GithubUser) = UserFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable(USER_ARG, user)
+            }
+        }
+    }
+
+    val presenter: UserPresenter by moxyPresenter {
+        val user = arguments?.getParcelable<GithubUser>(USER_ARG) as GithubUser //При отсутствии аргумента приложение упадет. Так задумано.
+        UserPresenter(App.instance.router, user)
+    }
 
     private var vb: FragmentUserBinding? = null
-    private var adapter: UsersRVAdapter? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = FragmentUserBinding.inflate(inflater, container, false).also {
-        vb.let {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
+        FragmentUserBinding.inflate(inflater, container, false).also {
             vb = it
-        }
-    }.root
+        }.root
 
     override fun onDestroyView() {
         super.onDestroyView()
         vb = null
     }
 
-//    override fun backPressed() = presenter.backClick()
+    override fun setLogin(text: String) {
+        vb?.tvLogin?.text = text
+    }
 
+    override fun backPressed() = presenter.backPressed()
 }

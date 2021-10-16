@@ -1,29 +1,29 @@
-package com.edu.github_mvp.mvp.presenter
+package ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter
 
 import com.github.terrakok.cicerone.Router
+import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
-import com.edu.github_mvp.mvp.model.GithubUsersRepo
-import com.edu.github_mvp.mvp.model.entity.GithubUser
-import com.edu.github_mvp.mvp.navigation.IScreens
-import com.edu.github_mvp.mvp.presenter.list.IUsersListPresenter
-import com.edu.github_mvp.mvp.view.UsersView
-import com.edu.github_mvp.mvp.view.list.IUserItemView
-import com.edu.github_mvp.ui.fragment.UserFragment
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubUser
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.navigation.IScreens
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.repo.IGithubUsersRepo
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.list.IUserListPresenter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.UsersView
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.list.UserItemView
 
-class UsersPresenter(private val usersRepo: GithubUsersRepo, private val router: Router,
-                     private val screens: IScreens) :
+class UsersPresenter(val uiScheduler: Scheduler, val usersRepo: IGithubUsersRepo, val router: Router, val screens: IScreens) :
     MvpPresenter<UsersView>() {
 
-    class UsersListPresenter : IUsersListPresenter {
+    class UsersListPresenter : IUserListPresenter {
         val users = mutableListOf<GithubUser>()
-        override var itemClickListener: ((IUserItemView) -> Unit)? = null
-
-        override fun bindView(view: IUserItemView) {
-            val user = users[view.pos]
-            view.setLogin(user.login)
-        }
+        override var itemClickListener: ((UserItemView) -> Unit)? = null
 
         override fun getCount() = users.size
+
+        override fun bindView(view: UserItemView) {
+            val user = users[view.pos]
+            view.setLogin(user.login)
+            view.loadAvatar(user.avatarUrl)
+        }
     }
 
     val usersListPresenter = UsersListPresenter()
@@ -33,20 +33,25 @@ class UsersPresenter(private val usersRepo: GithubUsersRepo, private val router:
         viewState.init()
         loadData()
 
-        usersListPresenter.itemClickListener = { view ->
-            val user = usersListPresenter.users[view.pos]
+        usersListPresenter.itemClickListener = { itemView ->
+            val user = usersListPresenter.users[itemView.pos]
             router.navigateTo(screens.user(user))
         }
     }
 
-    fun loadData() {
-        val users = usersRepo.getUsers()
-        usersListPresenter.users.clear()
-        usersListPresenter.users.addAll(users)
-        viewState.updateList()
+    private fun loadData() {
+        usersRepo.getUsers()
+            .observeOn(uiScheduler)
+            .subscribe({ repos ->
+                usersListPresenter.users.clear()
+                usersListPresenter.users.addAll(repos)
+                viewState.updateList()
+            }, {
+                println("Error: ${it.message}")
+            })
     }
 
-    fun backClick(): Boolean {
+    fun backPressed(): Boolean {
         router.exit()
         return true
     }
