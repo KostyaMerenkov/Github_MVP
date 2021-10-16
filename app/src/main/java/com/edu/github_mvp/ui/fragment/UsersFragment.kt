@@ -17,28 +17,26 @@ import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.BackButtonListener
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.adapter.UsersRVAdapter
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.image.GlideImageLoader
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.network.AndroidNetworkStatus
+import javax.inject.Inject
 
 class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
+
     companion object {
         fun newInstance() = UsersFragment()
     }
 
+    @Inject lateinit var database: Database
+
     val presenter: UsersPresenter by moxyPresenter {
-        UsersPresenter(
-            AndroidSchedulers.mainThread()
-        ).apply {
-            App.instance.appComponent.inject(this)
+        UsersPresenter().apply {
+            App.instance.iniUserSubcomponent().inject(this)
         }
     }
 
     var adapter: UsersRVAdapter? = null
     private var vb: FragmentUsersBinding? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) =
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
         FragmentUsersBinding.inflate(inflater, container, false).also {
             vb = it
         }.root
@@ -50,8 +48,8 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
 
     override fun init() {
         vb?.rvUsers?.layoutManager = LinearLayoutManager(context)
-        adapter = UsersRVAdapter(presenter.usersListPresenter).apply{
-            App.instance.appComponent.inject(this)
+        adapter = UsersRVAdapter(presenter.usersListPresenter).apply {
+            App.instance.appComponent.userSubcomponent().inject(this)
         }
         vb?.rvUsers?.adapter = adapter
     }

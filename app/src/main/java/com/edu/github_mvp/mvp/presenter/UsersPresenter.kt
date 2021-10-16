@@ -3,6 +3,7 @@ package ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter
 import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.di.user.IUserScopeContainer
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubUser
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.navigation.IScreens
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.repo.IGithubUsersRepo
@@ -10,12 +11,26 @@ import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.list.IUse
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.UsersView
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.list.UserItemView
 import javax.inject.Inject
+import javax.inject.Named
 
-class UsersPresenter(val uiScheduler: Scheduler) : MvpPresenter<UsersView>() {
+class UsersPresenter() : MvpPresenter<UsersView>() {
 
-    @Inject lateinit var usersRepo: IGithubUsersRepo
-    @Inject lateinit var screens: IScreens
-    @Inject lateinit var router: Router
+    @Inject
+    lateinit var userScopeContainer: IUserScopeContainer
+
+    @field:Named("ui")
+    @Inject
+    lateinit var uiScheduler: Scheduler
+
+    @Inject
+    lateinit var usersRepo: IGithubUsersRepo
+
+    @Inject
+    lateinit var router: Router
+
+    @Inject
+    lateinit var screens: IScreens
+
 
     class UsersListPresenter : IUserListPresenter {
         val users = mutableListOf<GithubUser>()
@@ -26,7 +41,7 @@ class UsersPresenter(val uiScheduler: Scheduler) : MvpPresenter<UsersView>() {
         override fun bindView(view: UserItemView) {
             val user = users[view.pos]
             user.login?.let { view.setLogin(it) }
-            user.avatarUrl?.let {view.loadAvatar(it)}
+            user.avatarUrl?.let { view.loadAvatar(it) }
         }
     }
 
@@ -59,4 +74,11 @@ class UsersPresenter(val uiScheduler: Scheduler) : MvpPresenter<UsersView>() {
         router.exit()
         return true
     }
+
+    override fun onDestroy() {
+        userScopeContainer.releaseUserScope()
+        super.onDestroy()
+    }
 }
+
+

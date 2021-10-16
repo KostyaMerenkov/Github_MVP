@@ -3,6 +3,7 @@ package ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter
 import com.github.terrakok.cicerone.Router
 import io.reactivex.rxjava3.core.Scheduler
 import moxy.MvpPresenter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.di.repository.IRepositoryScopeContainer
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubRepository
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubUser
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.navigation.IScreens
@@ -11,12 +12,15 @@ import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.list.IRep
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.UserView
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.list.RepositoryItemView
 import javax.inject.Inject
+import javax.inject.Named
 
-class UserPresenter(val uiScheduler: Scheduler, val user: GithubUser) : MvpPresenter<UserView>() {
+class UserPresenter(val user: GithubUser) : MvpPresenter<UserView>() {
 
+    @Inject lateinit var repositoryScopeContainer: IRepositoryScopeContainer
+    @field:Named("ui") @Inject lateinit var uiScheduler: Scheduler
+    @Inject lateinit var repositoriesRepo: IGithubRepositoriesRepo
     @Inject lateinit var router: Router
     @Inject lateinit var screens: IScreens
-    @Inject lateinit var repositoriesRepo: IGithubRepositoriesRepo
 
     class RepositoriesListPresenter : IRepositoryListPresenter {
         val repositories = mutableListOf<GithubRepository>()
@@ -57,5 +61,10 @@ class UserPresenter(val uiScheduler: Scheduler, val user: GithubUser) : MvpPrese
     fun backPressed(): Boolean {
         router.exit()
         return true
+    }
+
+    override fun onDestroy() {
+        repositoryScopeContainer.releaseRepositoryScope()
+        super.onDestroy()
     }
 }
