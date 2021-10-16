@@ -10,9 +10,7 @@ import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.list.IUse
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.UsersView
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.list.UserItemView
 
-class UsersPresenter(val uiScheduler: Scheduler, val usersRepo: IGithubUsersRepo, val router: Router, val screens: IScreens) :
-    MvpPresenter<UsersView>() {
-
+class UsersPresenter(val uiScheduler: Scheduler, val usersRepo: IGithubUsersRepo, val router: Router, val screens: IScreens) : MvpPresenter<UsersView>() {
     class UsersListPresenter : IUserListPresenter {
         val users = mutableListOf<GithubUser>()
         override var itemClickListener: ((UserItemView) -> Unit)? = null
@@ -21,8 +19,8 @@ class UsersPresenter(val uiScheduler: Scheduler, val usersRepo: IGithubUsersRepo
 
         override fun bindView(view: UserItemView) {
             val user = users[view.pos]
-            view.setLogin(user.login)
-            view.loadAvatar(user.avatarUrl)
+            user.login?.let { view.setLogin(it) }
+            user.avatarUrl?.let {view.loadAvatar(it)}
         }
     }
 
@@ -39,7 +37,7 @@ class UsersPresenter(val uiScheduler: Scheduler, val usersRepo: IGithubUsersRepo
         }
     }
 
-    private fun loadData() {
+    fun loadData() {
         usersRepo.getUsers()
             .observeOn(uiScheduler)
             .subscribe({ repos ->
