@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
-import ru.geekbrains.geekbrains_popular_libraries_kotlin.FragmentRepositoryBinding
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.databinding.FragmentRepositoryBinding
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubRepository
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.RepositoryPresenter
 import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.RepositoryView
