@@ -4,35 +4,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.edu.github_mvp.databinding.FragmentUserBinding
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import com.edu.github_mvp.databinding.FragmentUsersBinding
 import com.edu.github_mvp.mvp.model.GithubUsersRepo
+import com.edu.github_mvp.mvp.model.entity.GithubUser
+import com.edu.github_mvp.mvp.navigation.IScreens
+import com.edu.github_mvp.mvp.presenter.UserPresenter
 import com.edu.github_mvp.mvp.presenter.UsersPresenter
 import com.edu.github_mvp.mvp.view.UsersView
 import com.edu.github_mvp.ui.App
 import com.edu.github_mvp.ui.BackClickListener
 import com.edu.github_mvp.ui.adapter.UsersRVAdapter
+import com.github.terrakok.cicerone.Screen
 
-class UsersFragment : MvpAppCompatFragment(), UsersView, BackClickListener {
+class UserFragment : MvpAppCompatFragment() {
 
-    companion object {
-        fun newInstance() = UsersFragment()
-    }
+//    private val presenter by moxyPresenter {
+//        UserPresenter(App.instance.router, )
+//    }
 
-    private val presenter by moxyPresenter {
-        UsersPresenter(GithubUsersRepo(), App.instance.router, //what to put here)
-    }
-
-    private var vb: FragmentUsersBinding? = null
+    private var vb: FragmentUserBinding? = null
     private var adapter: UsersRVAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = FragmentUsersBinding.inflate(inflater, container, false).also {
-        vb = it
+    ) = FragmentUserBinding.inflate(inflater, container, false).also {
+        vb.let {
+            vb = it
+        }
     }.root
 
     override fun onDestroyView() {
@@ -40,16 +43,6 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackClickListener {
         vb = null
     }
 
-    override fun init() {
-        vb?.rvUsers?.layoutManager = LinearLayoutManager(requireContext())
-        adapter = UsersRVAdapter(presenter.usersListPresenter)
-        vb?.rvUsers?.adapter = adapter
-    }
-
-    override fun updateList() {
-        adapter?.notifyDataSetChanged()
-    }
-
-    override fun backPressed() = presenter.backClick()
+//    override fun backPressed() = presenter.backClick()
 
 }
