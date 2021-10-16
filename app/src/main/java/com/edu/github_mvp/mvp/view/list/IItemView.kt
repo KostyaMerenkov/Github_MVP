@@ -1,4 +1,4 @@
-package com.edu.github_mvp.mvp.view.list
+package ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.list
 
 interface IItemView {
     var pos: Int

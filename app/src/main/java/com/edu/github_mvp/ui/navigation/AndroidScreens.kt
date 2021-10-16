@@ -1,9 +1,12 @@
 package com.edu.github_mvp.ui.navigation
 
 import com.github.terrakok.cicerone.androidx.FragmentScreen
-import com.edu.github_mvp.mvp.navigation.IScreens
-import com.edu.github_mvp.ui.fragment.UsersFragment
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.entity.GithubUser
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.navigation.IScreens
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.fragment.UserFragment
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.fragment.UsersFragment
 
 class AndroidScreens : IScreens {
     override fun users() = FragmentScreen { UsersFragment.newInstance() }
+    override fun user(githubUser: GithubUser) = FragmentScreen { UserFragment.newInstance(githubUser) }
 }

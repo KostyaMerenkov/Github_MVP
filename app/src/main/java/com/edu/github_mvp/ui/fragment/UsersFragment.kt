@@ -1,39 +1,44 @@
-package com.edu.github_mvp.ui.fragment
+package ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
-import com.edu.github_mvp.databinding.FragmentUsersBinding
-import com.edu.github_mvp.mvp.model.GithubUsersRepo
-import com.edu.github_mvp.mvp.presenter.UsersPresenter
-import com.edu.github_mvp.mvp.view.UsersView
-import com.edu.github_mvp.ui.App
-import com.edu.github_mvp.ui.BackClickListener
-import com.edu.github_mvp.ui.adapter.UsersRVAdapter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.databinding.FragmentUsersBinding
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.api.ApiHolder
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.model.repo.RetrofitGithubUsersRepo
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.UsersPresenter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.view.UsersView
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.App
+import com.edu.github_mvp.ui.BackButtonListener
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.adapter.UsersRVAdapter
+import ru.geekbrains.geekbrains_popular_libraries_kotlin.ui.image.GlideImageLoader
+import com.edu.github_mvp.ui.navigation.AndroidScreens
 
-class UsersFragment : MvpAppCompatFragment(), UsersView, BackClickListener {
-
+class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
     companion object {
         fun newInstance() = UsersFragment()
     }
 
-    private val presenter by moxyPresenter {
-        UsersPresenter(GithubUsersRepo(), App.instance.router, //what to put here)
+    val presenter: UsersPresenter by moxyPresenter {
+        UsersPresenter(
+            AndroidSchedulers.mainThread(),
+            RetrofitGithubUsersRepo(ApiHolder.api),
+            App.instance.router, AndroidScreens()
+        )
     }
 
-    private var vb: FragmentUsersBinding? = null
-    private var adapter: UsersRVAdapter? = null
+    var adapter: UsersRVAdapter? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = FragmentUsersBinding.inflate(inflater, container, false).also {
-        vb = it
-    }.root
+    private var vb: FragmentUsersBinding? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
+        FragmentUsersBinding.inflate(inflater, container, false).also {
+            vb = it
+        }.root
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -41,15 +46,16 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackClickListener {
     }
 
     override fun init() {
-        vb?.rvUsers?.layoutManager = LinearLayoutManager(requireContext())
-        adapter = UsersRVAdapter(presenter.usersListPresenter)
+        vb?.rvUsers?.layoutManager = LinearLayoutManager(context)
+        adapter = UsersRVAdapter(presenter.usersListPresenter, GlideImageLoader())
         vb?.rvUsers?.adapter = adapter
+
     }
 
     override fun updateList() {
         adapter?.notifyDataSetChanged()
     }
 
-    override fun backPressed() = presenter.backClick()
+    override fun backPressed() = presenter.backPressed()
 
 }

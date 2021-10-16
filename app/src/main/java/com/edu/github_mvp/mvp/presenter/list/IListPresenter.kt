@@ -1,4 +1,4 @@
-package com.edu.github_mvp.mvp.presenter.list
+package ru.geekbrains.geekbrains_popular_libraries_kotlin.mvp.presenter.list
 
 interface IListPresenter<V> {
     var itemClickListener: ((V) -> Unit)?
