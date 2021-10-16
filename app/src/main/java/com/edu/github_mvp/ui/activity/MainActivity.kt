@@ -16,7 +16,7 @@ import javax.inject.Inject
 class MainActivity : MvpAppCompatActivity(), MainView {
 
     @Inject lateinit var navigatorHolder: NavigatorHolder
-    private val navigator = AppNavigator(this, R.id.container)
+    val navigator = AppNavigator(this, R.id.container)
 
     private val presenter by moxyPresenter {
         MainPresenter().apply {
@@ -27,9 +27,9 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        App.instance.appComponent.inject(this)
         vb = ActivityMainBinding.inflate(layoutInflater)
         setContentView(vb?.root)
+        App.instance.appComponent.inject(this)
     }
 
     override fun onResumeFragments() {
